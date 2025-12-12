@@ -1,13 +1,31 @@
 FROM python:3.10-slim
 
-RUN apt update && apt install -y ffmpeg git build-essential
+# prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    build-essential \
+    libavutil-dev \
+    libavformat-dev \
+    libavcodec-dev \
+    libswscale-dev \
+    libavdevice-dev \
+    libavfilter-dev \
+    libopus-dev \
+    libffi-dev \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy bot code
 WORKDIR /app
+COPY . .
 
-COPY requirements.txt .
+# Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-COPY . .
-
-CMD ["python3", "main.py"]
+# Start the bot
+CMD ["python", "bot.py"]
